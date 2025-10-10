@@ -31,4 +31,4 @@ Camera recordings: May need lower threshold (~0.90) due to motion
 Fast-paced lectures: Use lower sample_rate (e.g., 15)
 Slow lectures: Use higher sample_rate (e.g., 60) for faster processing
 
-The script will print progress and let you know how many unique slides it found!RetryClaude does not have the ability to run the code it generates yet.Claude can make mistakes. Please double-check responses.
+The script will print progress and let you know how many unique slides it found!
