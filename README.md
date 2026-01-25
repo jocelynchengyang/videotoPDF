@@ -8,9 +8,22 @@ A Python tool that automatically detects and captures slides during presentation
 
 This tool monitors a window or screen region for changes and automatically captures screenshots when it detects a new slide. Perfect for capturing lecture slides, webinar presentations, or any video content with changing slides.
 
+## Script Versions
+
+This repository contains multiple versions of the capture script:
+
+| Script | Capture Modes | Description |
+|--------|---------------|-------------|
+| `videoToPDF.py` | First + Last | **Recommended** - Full-featured version with both capture modes |
+| `videoToPDF2.py` | First only | Basic version without "Last" mode support |
+| `videoToPDF_backup.py` | First + Last | Backup copy of the full-featured version |
+
+**Use `videoToPDF.py`** for the best experience, especially if you need to capture slides with animations.
+
 ## Features
 
 - **Automatic slide detection** - Captures frames only when content changes significantly
+- **Two capture modes** - "First" mode for immediate capture, "Last" mode for slides with animations
 - **Smart window detection** - Automatically finds presentation windows (Box, YouTube, Zoom, etc.)
 - **Full screen support** - Can capture the entire screen if needed
 - **PDF compilation** - Automatically creates a PDF with all captured slides
@@ -39,7 +52,7 @@ pip install opencv-python numpy pillow pyobjc-framework-Quartz
 
 3. Make the script executable (optional):
 ```bash
-chmod +x slide_capture.py
+chmod +x videoToPDF.py
 ```
 
 ## Usage
@@ -48,7 +61,7 @@ chmod +x slide_capture.py
 
 Run the script:
 ```bash
-python3 slide_capture.py
+python3 videoToPDF.py
 ```
 
 ### Interactive Setup
@@ -63,12 +76,16 @@ The tool will guide you through setup:
 2. **Check Interval**
    - How often to check for changes (default: 1.0 second)
 
-3. **Window Selection**
+3. **Capture Mode**
+   - **First** (default) - Captures immediately when slide changes
+   - **Last** - Waits for content to stabilize before capturing (ideal for slides with incremental animations)
+
+4. **Window Selection**
    - The tool auto-detects windows containing presentations
    - If multiple windows found, you'll choose which one to capture
    - Option to use full screen if no window is detected
 
-4. **Capture**
+5. **Capture**
    - Keep the presentation window visible during capture
    - Press `Ctrl+C` to stop and generate the PDF
 
@@ -83,8 +100,13 @@ Sensitivity settings:
   Medium (0.05) - Balanced (recommended)
   High (0.10)  - Only major changes
 
-Enter sensitivity (or press Enter for default 0.05): 
-Check interval in seconds (default 1.0): 
+Enter sensitivity (or press Enter for default 0.05):
+Check interval in seconds (default 1.0):
+
+Capture mode:
+  first - Capture immediately when slide changes (default)
+  last  - Capture final state after incremental changes stop
+Enter mode (first/last, default: first):
 
 Attempting to auto-detect lecture window...
 ✓ Found 1 matching window(s):
@@ -138,6 +160,25 @@ Controls how often the tool checks for changes:
 - **0.5 seconds** - Very responsive, higher CPU usage
 - **1.0 seconds** - Balanced (recommended)
 - **2.0 seconds** - Lower CPU usage, may miss quick slides
+
+### Capture Modes
+
+The tool offers two capture modes to handle different types of presentations:
+
+#### First Mode (Default)
+Captures the slide immediately when a change is detected.
+
+- **Best for**: Standard presentations with instant slide transitions
+- **Behavior**: Saves a screenshot as soon as content differs from the previous frame
+- **Use when**: Slides appear fully rendered in a single transition
+
+#### Last Mode
+Waits for the slide content to stabilize before capturing, ensuring you get the final state.
+
+- **Best for**: Presentations with incremental animations or builds
+- **Behavior**: Detects a change, then waits for the content to remain stable for ~3 seconds before saving
+- **Use when**: Slides have bullet points that appear one-by-one, animated diagrams, or progressive reveals
+- **Note**: Captures the complete slide after all animations finish, avoiding partial captures
 
 ## Tips
 
@@ -194,6 +235,11 @@ This tool is provided as-is for educational and personal use.
 Feel free to submit issues or pull requests for improvements!
 
 ## Changelog
+
+### Version 1.1
+- Added "Last" capture mode for slides with incremental animations
+- Stability detection waits for content to settle before capturing
+- Improved handling of animated/progressive slide reveals
 
 ### Version 1.0
 - Initial release
