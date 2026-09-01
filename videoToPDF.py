@@ -241,6 +241,60 @@ class SlideCapture:
             int(bounds.size.width),
             int(bounds.size.height)
         )
+
+    def list_windows(self):
+        """
+        Enumerate candidate capture windows without any interactive prompts.
+
+        Returns:
+            List of dicts: {"label": str, "region": (x, y, w, h)}
+        """
+        results = []
+        try:
+            window_list = CGWindowListCopyWindowInfo(
+                kCGWindowListOptionAll | kCGWindowListExcludeDesktopElements,
+                kCGNullWindowID
+            )
+
+            ignored_apps = ["Control Center", "SystemUIServer", "Dock", "Window Server",
+                            "Notification Center", "Spotlight", "Finder", "Code",
+                            "Visual Studio Code", "Terminal", "iTerm", "PyCharm",
+                            "Sublime Text", "Atom", "VSCode", "Microsoft Outlook",
+                            "Outlook", "Mail", "Calendar", "Slack", "Discord"]
+            ignored_title_terms = ["Claude", "claude.ai"]
+
+            seen = set()
+            for window in window_list:
+                title = window.get('kCGWindowName', '')
+                owner = window.get('kCGWindowOwnerName', '')
+                layer = window.get('kCGWindowLayer', 0)
+
+                if owner in ignored_apps or not title or layer < 0:
+                    continue
+                if any(term.lower() in title.lower() for term in ignored_title_terms):
+                    continue
+
+                bounds = window.get('kCGWindowBounds', {})
+                w = int(bounds.get('Width', 0))
+                h = int(bounds.get('Height', 0))
+                if w < 200 or h < 200:
+                    continue
+
+                region = (int(bounds['X']), int(bounds['Y']), w, h)
+                label = f"{title[:70]}  —  {owner}"
+                key = (label, region)
+                if key in seen:
+                    continue
+                seen.add(key)
+                results.append({"label": label, "region": region})
+        except Exception as e:
+            print(f"Error listing windows: {e}")
+
+        return results
+
+    def stop(self):
+        """Signal the capture loop to stop (used by the GUI)."""
+        self.is_capturing = False
     
     def frames_are_different(self, frame1, frame2):
         """
@@ -294,6 +348,8 @@ class SlideCapture:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         session_dir = os.path.join(self.output_dir, f"session_{timestamp}")
         os.makedirs(session_dir, exist_ok=True)
+        self.session_dir = session_dir
+        self.session_timestamp = timestamp
         
         self.is_capturing = True
         self.slides = []
@@ -372,7 +428,11 @@ class SlideCapture:
                 cv2.imwrite(slide_filename, pending_slide)
                 self.slides.append(slide_filename)
                 print(f"✓ Captured final slide {slide_count}")
-                
+
+            # Normal loop exit (e.g. stopped from the GUI) - build the PDF
+            print("\n\nStopping capture...")
+            self.stop_capture(session_dir, timestamp)
+
         except KeyboardInterrupt:
             # Save any pending slide before stopping
             if self.capture_mode == "last" and pending_slide is not None:
