@@ -14,14 +14,16 @@ This repository contains multiple versions of the capture script:
 
 | Script | Capture Modes | Description |
 |--------|---------------|-------------|
+| `videoToPDF_gui.py` | First + Last | Tkinter GUI wrapper around `videoToPDF.py` |
 | `videoToPDF.py` | First + Last | **Recommended** - Full-featured version with both capture modes |
 | `videoToPDF2.py` | First only | Basic version without "Last" mode support |
 | `videoToPDF_backup.py` | First + Last | Backup copy of the full-featured version |
 
-**Use `videoToPDF.py`** for the best experience, especially if you need to capture slides with animations.
+**Use `videoToPDF.py`** (or `videoToPDF_gui.py` for a point-and-click version) for the best experience, especially if you need to capture slides with animations.
 
 ## Features
 
+- **GUI or command line** - Point-and-click Tkinter interface (`videoToPDF_gui.py`) or the interactive CLI (`videoToPDF.py`)
 - **Automatic slide detection** - Captures frames only when content changes significantly
 - **Two capture modes** - "First" mode for immediate capture, "Last" mode for slides with animations
 - **Smart window detection** - Automatically finds presentation windows (Box, YouTube, Zoom, etc.)
@@ -57,7 +59,25 @@ chmod +x videoToPDF.py
 
 ## Usage
 
-### Basic Usage
+### GUI
+
+For a point-and-click interface, run:
+```bash
+python3 videoToPDF_gui.py
+```
+
+The window lets you:
+
+1. Set **sensitivity** and **check interval**
+2. Choose the **capture mode** (`first` or `last`)
+3. Pick a **capture source** - full screen or any detected window (use **Refresh windows** after opening/changing the presentation window)
+4. Press **Start capture**, then **Stop & save PDF** when done - no `Ctrl+C` needed
+
+Progress and the captured slide count show in the log pane, and the PDF path is
+displayed when capture stops. Everything is saved to `slides/` exactly as with
+the CLI.
+
+### Basic Usage (CLI)
 
 Run the script:
 ```bash
@@ -235,6 +255,12 @@ This tool is provided as-is for educational and personal use.
 Feel free to submit issues or pull requests for improvements!
 
 ## Changelog
+
+### Version 1.2
+- Added `videoToPDF_gui.py`, a simple Tkinter GUI for setting options, choosing a
+  capture source, and starting/stopping capture without `Ctrl+C`
+- `SlideCapture` gained `list_windows()` and `stop()` helpers; the PDF is now also
+  built on a normal stop, not only on `KeyboardInterrupt`
 
 ### Version 1.1
 - Added "Last" capture mode for slides with incremental animations
